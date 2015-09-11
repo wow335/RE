@@ -1410,10 +1410,12 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                                 tstZ = tstZ2 + 0.5f;
                         }
 
+                        destx = tstX;
+                        desty = tstY;
                         destz = tstZ;
                         srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX) + (tstZ - prevZ)*(tstZ - prevZ));
                         totalpath += srange;
-                        //TC_LOG_ERROR("server", "Blink cycle checking coordinates, number of cycle = %i , distance of step = %f, total path = %f", j, srange, totalpath);
+                        //TC_LOG_ERROR("server", "Blink cycle checking coordinates, number of cycle = %i , distance of step = %f, total path = %f", j, srange, totalpath);                        
 
                         if (totalpath > distance)
                         {
@@ -1442,11 +1444,11 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
 
                             travelDistZ = sqrt((desty - prevY)*(desty - prevY) + (destx - prevX)*(destx - prevX));
                             // highest available point
-                            destz1 = map->GetHeight(phasemask, tstX, tstY, prevZ + travelDistZ + 2.0f, true);
+                            destz1 = map->GetHeight(phasemask, destx, desty, prevZ + travelDistZ + 2.0f, true);
                             // upper or floor
-                            destz2 = map->GetHeight(phasemask, tstX, tstY, prevZ + travelDistZ, true);
+                            destz2 = map->GetHeight(phasemask, destx, desty, prevZ + travelDistZ, true);
                             //lower than floor
-                            destz3 = map->GetHeight(phasemask, tstX, tstY, prevZ - travelDistZ, true);
+                            destz3 = map->GetHeight(phasemask, destx, desty, prevZ - travelDistZ, true);
 
                             //distance of rays, will select the shortest in 3D
                             srange1 = sqrt((desty - prevY)*(desty - prevY) + (destx - prevX)*(destx - prevX) + (destz1 - prevZ)*(destz1 - prevZ));
