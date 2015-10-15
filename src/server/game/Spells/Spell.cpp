@@ -1285,7 +1285,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         }
         case TARGET_DEST_CASTER_FRONT_LEAP:
         {
-            float distance = m_spellInfo->Effects[effIndex].CalcRadius();
+            float distance = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             Map* map = m_caster->GetMap();
             uint32 phasemask = m_caster->GetPhaseMask();
             float x, y, z;
