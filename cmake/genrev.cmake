@@ -24,7 +24,7 @@ else()
   if(GIT_EXECUTABLE)
     # Create a revision-string that we can use
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" describe --match init --dirty=+ --abbrev=12
+      COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_info
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -48,6 +48,7 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+
   endif()
 
   # Last minute check - ensure that we have a proper revision
