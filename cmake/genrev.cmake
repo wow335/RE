@@ -24,7 +24,7 @@ else()
   if(GIT_EXECUTABLE)
     # Create a revision-string that we can use
     execute_process(
-      COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+      COMMAND "${GIT_EXECUTABLE}" rev-list --count HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_info
       OUTPUT_STRIP_TRAILING_WHITESPACE
