@@ -6230,8 +6230,25 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             {
                 case 56800: // Glyph of Backstab
                 {
-                    triggered_spell_id = 63975;
-                    break;
+                    if (!target)
+                        return false;
+
+                    if (AuraEffect const* AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0x0, 0x0, GetGUID()))
+                    {
+                        uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
+                        
+                        uint32 CountMax = AurEff->GetSpellInfo()->GetMaxDuration();
+                        
+                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Backstab              -> +6 seconds
+                        
+                        if (CountMin < CountMax)
+                        {
+                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * IN_MILLISECONDS);
+                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * IN_MILLISECONDS);
+                            return true;
+                        }
+                    }
+                    return false;
                 }
                 case 32748: // Deadly Throw Interrupt
                 {
