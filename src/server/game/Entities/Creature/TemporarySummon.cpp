@@ -350,6 +350,17 @@ void Guardian::InitSummon()
     }
 }
 
+void Guardian::RemoveFromWorld()
+{
+    if (!IsInWorld())
+        return;
+    
+    if (IsCharmed())
+        RemoveCharmedBy(NULL);
+    
+    Minion::RemoveFromWorld();
+}
+
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
     : Minion(properties, owner, false) //maybe true?
 {

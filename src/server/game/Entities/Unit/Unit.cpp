@@ -9411,7 +9411,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 
         // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
-        if (minion->IsPetGhoul())
+        if (minion->IsPetGhoul() || minion->IsRisenAlly())
             minion->setPowerType(POWER_ENERGY);
 
         // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
@@ -15940,6 +15940,9 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // Set charmed
     charmer->SetCharm(this, true);
 
+    if (type == CHARM_TYPE_POSSESS)
+        GetAI()->OnPossess(true);
+
     if (GetTypeId() == TYPEID_UNIT)
     {
         ToCreature()->AI()->OnCharmed(true);
@@ -16048,6 +16051,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         RestoreFaction();
 
     GetMotionMaster()->InitDefault();
+
+    if (type == CHARM_TYPE_POSSESS)
+        GetAI()->OnPossess(false);
 
     if (Creature* creature = ToCreature())
     {
