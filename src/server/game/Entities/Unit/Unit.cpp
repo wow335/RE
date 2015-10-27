@@ -13643,6 +13643,9 @@ void Unit::RemoveFromWorld()
 
         RemoveAreaAurasDueToLeaveWorld();
 
+        if (IsCharmed())
+            RemoveCharmedBy(NULL);
+
         if (GetCharmerGUID())
         {
             TC_LOG_FATAL("entities.unit", "Unit %u has charmer guid when removed from world", GetEntry());

@@ -88,7 +88,6 @@ class Guardian : public Minion
         void InitStats(uint32 duration) override;
         bool InitStatsForLevel(uint8 level);
         void InitSummon() override;
-        void RemoveFromWorld() override;
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
