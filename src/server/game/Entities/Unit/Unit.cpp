@@ -15940,9 +15940,6 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // Set charmed
     charmer->SetCharm(this, true);
 
-    if (type == CHARM_TYPE_POSSESS)
-        GetAI()->OnPossess(true);
-
     if (GetTypeId() == TYPEID_UNIT)
     {
         ToCreature()->AI()->OnCharmed(true);
@@ -16051,9 +16048,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         RestoreFaction();
 
     GetMotionMaster()->InitDefault();
-
-    if (type == CHARM_TYPE_POSSESS)
-        GetAI()->OnPossess(false);
 
     if (Creature* creature = ToCreature())
     {

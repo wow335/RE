@@ -178,7 +178,7 @@ struct ScriptedAI : public CreatureAI
     void MovementInform(uint32 /*type*/, uint32 /*id*/) override { }
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
-    void OnPossess(bool /*apply*/) override { }
+    void OnPossess(bool /*apply*/) { }
 
     // *************
     // Variables

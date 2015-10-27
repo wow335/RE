@@ -1287,7 +1287,7 @@ public:
         void Reset() override { }
         void EnterCombat(Unit* /*who*/) override { }
 
-        void OnPossess(bool apply) override
+        void OnPossess(bool apply)
         {
             if (apply)
             {

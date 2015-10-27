@@ -133,7 +133,6 @@ class UnitAI
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
-        virtual void OnPossess(bool /*apply*/) { }
 
         // Pass parameters between AI
         virtual void DoAction(int32 /*param*/) { }
