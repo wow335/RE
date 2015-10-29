@@ -2614,7 +2614,10 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
+    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+        SetSwim(CanSwim() && GetMap()->IsSwimmable(GetPositionX(), GetPositionY(), GetPositionZ(), minfo->bounding_radius));
+    else
+        SetSwim(CanSwim() && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
