@@ -12400,6 +12400,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             case MOVE_RUN:
                 // Set creature speed rate
                 speed *= ToCreature()->GetCreatureTemplate()->speed_run;
+                break;
             default:
                 break;
         }
