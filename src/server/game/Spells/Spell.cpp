@@ -1328,9 +1328,12 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 // author: kvipka
                 // recalculate, we need it if want can blink in different situations
 
-                float tstX, tstY, tstZ, prevX, prevY, prevZ, beforewaterz, overdistance, totalpath;
+                float tstX, tstY, tstZ, prevX, prevY, prevZ;
                 float tstZ1, tstZ2, tstZ3, destz1, destz2, destz3, srange, srange1, srange2, srange3;
                 float maxtravelDistZ = 2.65f;
+                float overdistance = 0.0f;
+                float totalpath = 0.0f;
+                float beforewaterz = 0.0f;
                 const float step = 2.0f;
                 const uint8 numChecks = ceil(fabs(distance / step));
                 const float DELTA_X = (destx - x) / numChecks;
@@ -1345,10 +1348,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
 
                     if (j < 2)
                     {
-                        prevZ = z;
-                        overdistance = 0.0f;
-                        totalpath = 0.0f;
-                        beforewaterz = 0.0f;
+                        prevZ = z;                        
                     }
                     else
                     {
