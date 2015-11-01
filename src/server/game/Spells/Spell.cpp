@@ -1328,7 +1328,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 // author: kvipka
                 // recalculate, we need it if want can blink in different situations
 
-                float tstX, tstY, tstZ, prevX, prevY, prevZ, beforewaterz, newdistance, totalpath;
+                float tstX, tstY, tstZ, prevX, prevY, prevZ, beforewaterz, overdistance, totalpath;
                 float tstZ1, tstZ2, tstZ3, destz1, destz2, destz3, srange, srange1, srange2, srange3;
                 float maxtravelDistZ = 2.65f;
                 const float step = 2.0f;
@@ -1346,43 +1346,45 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                     if (j < 2)
                     {
                         prevZ = z;
-                        newdistance = 0.0f;
+                        overdistance = 0.0f;
                         totalpath = 0.0f;
+                        beforewaterz = 0.0f;
                     }
                     else
                     {
                         prevZ = tstZ;
                     }
 
-                    tstZ = map->GetHeight(phasemask, tstX, tstY, prevZ + maxtravelDistZ, true, 10.0f);
+                    tstZ = map->GetHeight(phasemask, tstX, tstY, prevZ + maxtravelDistZ, true);
+                    ground = tstZ;
 
                     if (!map->IsInWater(x, y, z))
                     {
-                        if (map->IsInWater(tstX, tstY, tstZ) && !map->IsInWater(prevX, prevY, prevZ))// if first we start contact with water, we save coordinate Z before water and use her
+                        if (map->IsInWater(tstX, tstY, tstZ))
                         {
-                            beforewaterz = prevZ;
-                            tstZ = beforewaterz;
-                        }
-                        else if (map->IsInWater(tstX, tstY, tstZ)) // it next step , where first contact was previos step, and we must recalculate prevZ to Z before water.
-                        {
-                            prevZ = beforewaterz;
-                            tstZ = beforewaterz;
+                            if (!beforewaterz != 0.0f)
+                                beforewaterz = prevZ;
+                            tstZ = beforewaterz;                            
+                            srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX));
+                            //TC_LOG_ERROR("server", "(start was from land) step in water , number of cycle = %i , distance of step = %f, total path = %f, Z = %f", j, srange, totalpath, tstZ);
                         }
                     }
                     else if (map->IsInWater(tstX, tstY, tstZ))
                     {
                         prevZ = z;
                         tstZ = z;
+                        srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX));
+                        //TC_LOG_ERROR("server", "(start in water) step in water, number of cycle = %i , distance of step = %f, total path = %f", j, srange, totalpath);
                     }
 
-                    if (!map->IsInWater(tstX, tstY, tstZ))  // second safety check z for blink way if on the ground
+                    if (!map->IsInWater(tstX, tstY, tstZ) && tstZ != beforewaterz)  // second safety check z for blink way if on the ground
                     {
                         // highest available point
                         tstZ1 = map->GetHeight(phasemask, tstX, tstY, prevZ + maxtravelDistZ);
                         // upper or floor
                         tstZ2 = map->GetHeight(phasemask, tstX, tstY, prevZ);
                         //lower than floor
-                        tstZ3 = map->GetHeight(phasemask, tstX, tstY, prevZ - maxtravelDistZ/2);
+                        tstZ3 = map->GetHeight(phasemask, tstX, tstY, prevZ - maxtravelDistZ / 2);
 
                         //distance of rays, will select the shortest in 3D
                         srange1 = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX) + (tstZ1 - prevZ)*(tstZ1 - prevZ));
@@ -1394,20 +1396,22 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                         else if (srange3 < srange2)
                             tstZ = tstZ3;
                         else
-                            tstZ = tstZ2;
+                            tstZ = tstZ2;                        
+                        
+                        srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX) + (tstZ - prevZ)*(tstZ - prevZ));
+                        //TC_LOG_ERROR("server", "step on ground, number of cycle = %i , distance of step = %f, total path = %f", j, srange, totalpath);
                     }
 
                     destx = tstX;
                     desty = tstY;
                     destz = tstZ;
-                    srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX) + (tstZ - prevZ)*(tstZ - prevZ));
-                    totalpath += srange;
-                    //TC_LOG_ERROR("server", "Blink cycle checking coordinates, number of cycle = %i , distance of step = %f, total path = %f", j, srange, totalpath);                        
+                                        
+                    totalpath += srange;                                            
 
                     if (totalpath > distance)
                     {
-                        newdistance = totalpath - distance;
-                        //TC_LOG_ERROR("server", "total path > than distance in 3D , need to move back a bit on distance, total path = %f, back distance = %f", totalpath, newdistance);
+                        overdistance = totalpath - distance;
+                        //TC_LOG_ERROR("server", "total path > than distance in 3D , need to move back a bit for save distance, total path = %f, overdistance = %f", totalpath, overdistance);
                     }
 
                     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, prevX, prevY, prevZ + 0.5f, tstX, tstY, tstZ + 0.5f, tstX, tstY, tstZ, -0.5f);
@@ -1415,22 +1419,24 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                     bool dcol = m_caster->GetMap()->getObjectHitPos(phasemask, prevX, prevY, prevZ + 0.5f, tstX, tstY, tstZ + 0.5f, tstX, tstY, tstZ, -0.5f);
 
                     // collision occured
-                    if (col || dcol || (newdistance > 0.0f) || (fabs(prevZ - tstZ) > maxtravelDistZ))
+                    if (col || dcol || (overdistance > 0.0f && !map->IsInWater(tstX, tstY, ground)) || (fabs(prevZ - tstZ) > maxtravelDistZ))
                     {
-                        if ((newdistance > 0.0f) && (newdistance < step))
+                        if ((overdistance > 0.0f) && (overdistance < step))
                         {
-                            destx = prevX + newdistance * cos(orientation);
-                            desty = prevY + newdistance * sin(orientation);
+                            destx = prevX + overdistance * cos(orientation);
+                            desty = prevY + overdistance * sin(orientation);
+                            //TC_LOG_ERROR("server", "(collision) collision occured 1");
                         }
                         else
                         {
                             // move back a bit
                             destx = tstX - (0.6 * cos(orientation));
                             desty = tstY - (0.6 * sin(orientation));
+                            //TC_LOG_ERROR("server", "(collision) collision occured 2");
                         }
 
                         // highest available point
-                        destz1 = map->GetHeight(phasemask, destx, desty, prevZ + maxtravelDistZ, true, 10.0f);
+                        destz1 = map->GetHeight(phasemask, destx, desty, prevZ + maxtravelDistZ + 2.0f, true, 10.0f);
                         // upper or floor
                         destz2 = map->GetHeight(phasemask, destx, desty, prevZ, true, 10.0f);
                         //lower than floor
@@ -1448,8 +1454,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                         else
                             destz = destz2;
 
-                        if (map->IsInWater(destx, desty, destz)) // recheck collide on top water 
-                            destz = prevZ;
+                        //TC_LOG_ERROR("server", "(collision) destZ rewrited in prevZ");                         
 
                         break;
                     }
