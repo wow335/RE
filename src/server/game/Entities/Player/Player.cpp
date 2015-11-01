@@ -8139,7 +8139,7 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         _Spell const& spellData = proto->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type
@@ -8267,7 +8267,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             _Spell const& spellData = proto->Spells[i];
 
             // no spell
-            if (!spellData.SpellId)
+            if (spellData.SpellId <= 0)
                 continue;
 
             // wrong triggering type
@@ -8396,7 +8396,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         _Spell const& spellData = proto->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type
@@ -22765,7 +22765,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
         _Spell const& spellData = pItem->GetTemplate()->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)

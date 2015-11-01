@@ -4453,7 +4453,7 @@ void Spell::TakeCastItem()
 
     for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
-        if (proto->Spells[i].SpellId)
+        if (proto->Spells[i].SpellId > 0)
         {
             // item has limited charges
             if (proto->Spells[i].SpellCharges)
@@ -6244,7 +6244,7 @@ SpellCastResult Spell::CheckItems()
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemTemplate const* proto = targetItem->GetTemplate();
-                    if (proto->Spells[e].SpellId && (
+                    if (proto->Spells[e].SpellId > 0 && (
                         proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
                         proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
