@@ -1362,7 +1362,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                     {
                         if (map->IsInWater(tstX, tstY, tstZ))
                         {
-                            if (!beforewaterz != 0.0f)
+                            if (!(beforewaterz != 0.0f))
                                 beforewaterz = prevZ;
                             tstZ = beforewaterz;                            
                             srange = sqrt((tstY - prevY)*(tstY - prevY) + (tstX - prevX)*(tstX - prevX));
