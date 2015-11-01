@@ -1,4 +1,4 @@
-# ![logo](https://github.com/healthstone/images/blob/master/world.png?raw=true) 
+# ![logo](https://github.com/healthstone/images/blob/master/logo.png?raw=true) 
 
 ## Introduction
 RustEmu-Core is a *MMORPG* Framework based mostly in C++.
