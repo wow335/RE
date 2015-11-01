@@ -445,6 +445,12 @@ class spell_hun_masters_call : public SpellScriptLoader
                     // Cannot be processed while pet is dead
                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
                     target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
+
+                    if (target->IsPet())
+                    {
+                        Player* caster = target->GetOwner()->ToPlayer();
+                        caster->CastSpell(caster, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
+                    }                    
                 }
             }
 
