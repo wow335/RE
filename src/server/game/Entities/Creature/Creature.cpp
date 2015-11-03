@@ -533,7 +533,7 @@ void Creature::Update(uint32 diff)
                 else
                     m_masterCallTime -= diff;
 
-                if (m_masterCallTime == 0 && IsWithinDist(GetCharmerOrOwnerPlayerOrPlayerItself(), ATTACK_DISTANCE))
+                if (m_masterCallTime == 0 || IsWithinDist(GetCharmerOrOwnerPlayerOrPlayerItself(), ATTACK_DISTANCE))
                 {
                     Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
@@ -565,7 +565,7 @@ void Creature::Update(uint32 diff)
                         GetMotionMaster()->MoveChase(pettarget);
                     }
                     else
-                        GetMotionMaster()->MoveFollow(GetCharmerOrOwner(), PET_FOLLOW_DIST, GetFollowAngle());
+                        GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, GetFollowAngle());
 
                     NeedChangeAI = true;
 
