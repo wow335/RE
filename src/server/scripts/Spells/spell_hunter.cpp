@@ -30,6 +30,7 @@
 #include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "MoveSplineInit.h"
 
 enum HunterSpells
 {
@@ -435,6 +436,16 @@ class spell_hun_masters_call : public SpellScriptLoader
                             TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
                             target->CastSpell(ally, GetEffectValue(), castMask);
                             target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
+                            target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
+
+                            target->GetMotionMaster()->Clear();
+
+                            Movement::MoveSplineInit init(target);
+                            init.MoveTo(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), false);
+                            init.SetVelocity(42.0f);
+                            init.Launch();
+
+                            target->SetMasterCallDelay(3);
                         }
             }
 
@@ -443,14 +454,8 @@ class spell_hun_masters_call : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     // Cannot be processed while pet is dead
-                    TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                    target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
-
-                    if (target->IsPet())
-                    {
-                        Player* caster = target->GetOwner()->ToPlayer();
-                        caster->CastSpell(caster, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
-                    }                    
+                    //TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
+                    //target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);              
                 }
             }
 

@@ -616,6 +616,14 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
                 m_combatPulseTime = delay;
         }
 
+        uint32 GetMasterCallDelay() const { return m_masterCallDelay; }
+        void SetMasterCallDelay(uint32 delay) // (secs) interval at which the creature will going at owner for free him from roots
+        {
+            m_masterCallDelay = delay;
+            if (m_masterCallTime == 0 || m_masterCallTime > delay)
+                m_masterCallTime = delay;
+        }
+
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting corpse
 
@@ -703,6 +711,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         float m_respawnradius;
         uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
+        uint32 m_masterCallTime;                            // (msecs) remaining time for next zone-in-combat pulse
+        uint32 m_masterCallDelay;                            // (msecs) remaining time for next zone-in-combat pulse
 
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();

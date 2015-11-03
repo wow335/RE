@@ -138,7 +138,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0),
 m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
+m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_combatPulseTime(0), m_combatPulseDelay(0), m_masterCallTime(0), m_masterCallDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(NULL), m_creatureData(NULL), m_waypointID(0), m_path_id(0), m_formation(NULL)
@@ -526,6 +526,54 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
+            if (m_masterCallDelay > 0)
+            {
+                if (diff > m_masterCallTime)
+                    m_masterCallTime = 0;
+                else
+                    m_masterCallTime -= diff;
+
+                if (m_masterCallTime == 0 && IsWithinDist(GetCharmerOrOwnerPlayerOrPlayerItself(), ATTACK_DISTANCE))
+                {
+                    Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+                    TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
+                    player->CastSpell(player, 62305, castMask);
+
+                    Unit* pettarget = GetVictim();
+
+                    SendMeleeAttackStop(); // Should stop pet's attack button from flashing
+
+                    GetCharmInfo()->SetIsCommandAttack(false);
+                    GetCharmInfo()->SetIsCommandFollow(true);
+                    GetCharmInfo()->SetIsAtStay(false);
+                    GetCharmInfo()->SetIsFollowing(false);
+                    GetCharmInfo()->SetIsReturning(false);
+
+                    GetCharmInfo()->SetIsReturning(true);
+                    GetMotionMaster()->Clear();                    
+                    
+                    if (pettarget && pettarget->IsAlive())
+                    {
+                        ClearUnitState(UNIT_STATE_FOLLOW);
+                        GetCharmInfo()->SetIsCommandAttack(true);
+                        GetCharmInfo()->SetIsAtStay(false);
+                        GetCharmInfo()->SetIsFollowing(false);
+                        GetCharmInfo()->SetIsCommandFollow(false);
+                        GetCharmInfo()->SetIsReturning(false);
+                        SendMeleeAttackStart(pettarget);
+                        GetMotionMaster()->MoveChase(pettarget);
+                    }
+                    else
+                        GetMotionMaster()->MoveFollow(GetCharmerOrOwner(), PET_FOLLOW_DIST, GetFollowAngle());
+
+                    NeedChangeAI = true;
+
+                    m_masterCallDelay = 0;
+                    m_masterCallTime = m_masterCallDelay * IN_MILLISECONDS;
+                }
+            }
+
             // if creature is charmed, switch to charmed AI (and back)
             if (NeedChangeAI)
             {
@@ -537,7 +585,7 @@ void Creature::Update(uint32 diff)
                         i_AI->AttackStart(charmer);
 
                 LastCharmerGUID.Clear();
-            }
+            }            
 
             // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
             if (m_combatPulseDelay > 0 && IsInCombat() && GetMap()->IsDungeon())
